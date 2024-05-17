@@ -8,10 +8,26 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { useRef, useEffect } from 'react';
 import Chart from 'chart.js/auto';
+import { useLocation } from 'react-router-dom';
 
 const DetailPage = () => {
   const [content, setContent] = useState(<DeviceStatus />);
   const navigate = useNavigate();
+  const location = useLocation();
+  const detailData = location.state?.detailData || {};
+
+  const getSignalStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'bagus':
+        return 'text-green-500';
+      case 'sedang':
+        return 'text-yellow-500';
+      case 'buruk':
+        return 'text-red-500';
+      default:
+        return 'text-black';
+    }
+  };
 
   const chartData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -33,6 +49,41 @@ const DetailPage = () => {
   let chartInstance1 = null;
   let chartInstance2 = null;
   let chartInstance3 = null;
+
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const timeDifference = (now - date) / 1000;
+    
+    const secondsInMinute = 60;
+    const secondsInHour = secondsInMinute * 60;
+    const secondsInDay = secondsInHour * 24;
+    const secondsInWeek = secondsInDay * 7;
+    const secondsInMonth = secondsInDay * 30; // Average 30 days per month
+    const secondsInYear = secondsInDay * 365; // Average 365 days per year
+    
+    if (timeDifference < secondsInMinute) {
+        return 'Just now';
+    } else if (timeDifference < secondsInHour) {
+        const minutes = Math.floor(timeDifference / secondsInMinute);
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (timeDifference < secondsInDay) {
+        const hours = Math.floor(timeDifference / secondsInHour);
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (timeDifference < secondsInWeek) {
+        const days = Math.floor(timeDifference / secondsInDay);
+        return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else if (timeDifference < secondsInMonth) {
+        const weeks = Math.floor(timeDifference / secondsInWeek);
+        return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+    } else if (timeDifference < secondsInYear) {
+        const months = Math.floor(timeDifference / secondsInMonth);
+        return `${months} month${months > 1 ? 's' : ''} ago`;
+    } else {
+        const years = Math.floor(timeDifference / secondsInYear);
+        return `${years} year${years > 1 ? 's' : ''} ago`;
+    }
+};
 
   useEffect(() => {
     if (chartRef1.current && chartData) {
@@ -136,16 +187,16 @@ const DetailPage = () => {
         <div className="rounded-[30px] flex flex-col gap-4">
           <Navbar />
           <div className="bg-[#F9F9F9] h-[90%] relative rounded-[30px] border border-[#BFB2B2] shadow-md shadow-[#606060] flex flex-col p-9 bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
-            <Card className='w-96 rounded-[30px] border border-[#BFB2B2]'>
+          <Card className='w-96 rounded-[30px] border border-[#BFB2B2] ml-5 mt-5'>
               <CardHeader className="flex flex-row items-center">
                 <img src="/image 1.png" alt="" />
-                <CardTitle className="ml-3">SN 6822081471</CardTitle>
+                <CardTitle className="ml-3">{detailData.serial_number}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>Signal Device &nbsp; : Tidak Bagus</p>
-                <p>Rate Data Flow &nbsp; : 2,3 m3/hari</p>
-                <p>Status Baterai &nbsp; : Stabil</p>
-                <p>Status Last Data &nbsp;: Update</p>
+                <p>Signal Device &nbsp;    : <span className={getSignalStatusColor(detailData.signalStatus)}>{detailData.signalStatus.toUpperCase()}</span></p>
+                <p>Rate Data Flow &nbsp;   : {detailData.rateDataFlow} m3/hari</p>
+                <p>Status Baterai &nbsp;   : {detailData.batteryStatus}</p>
+                <p>Status Last Data &nbsp; : {formatTimestamp(detailData.timestamp)}</p>
               </CardContent>
             </Card>
             <div className="flex flex-col gap-4 mt-4">
@@ -153,7 +204,7 @@ const DetailPage = () => {
               <canvas ref={chartRef2} width="897" height="184.56" />
               <canvas ref={chartRef3} width="897" height="184.56" />
             </div>
-            <Button onClick={() => navigate('/')} className='absolute top-8 right-8 bg-green-500 hover:bg-green-700'>Back</Button>
+            <Button onClick={() => navigate('/')} className='absolute top-10 right-10 w-15 h-6 bg-green-500 hover:bg-green-700'>Back</Button>
           </div>
         </div>
       </div>

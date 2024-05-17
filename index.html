@@ -8,6 +8,29 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="./src/main.jsx"></script>
+    <!-- <script>
+      const fetchData = async () => {
+        try {
+            // const response = await fetch('http://36.92.168.180:6380/vito-anjay/controllers/Chart', {
+            const response = await fetch('https://jaguar-neat-dingo.ngrok-free.app/swmdepok/dashboard/', {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    // "Access-Control-Allow-Origin":"*",
+                },
+                // mode: "cors"
+              });
+
+            const jsonData = await response.json();
+            console.log(jsonData)
+            setData(jsonData.data);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+
+        fetchData();
+    </script> -->
   </body>
 </html>

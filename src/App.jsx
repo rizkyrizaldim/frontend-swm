@@ -7,7 +7,7 @@ import { useState } from "react";
 
 function App() {
   const [content, setContent] = useState (<DeviceStatus/>)
- 
+  
   return (
     <>
       <div className="w-full bg-gray-200 h-screen lg:grid lg:grid-cols-[20%,75%] p-2 lg:py-5 gap-6 justify-center">
