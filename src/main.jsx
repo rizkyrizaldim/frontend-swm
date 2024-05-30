@@ -7,6 +7,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import DetailPage from './components/DetailPage.jsx';
+import LoginPage from './components/LoginPage.jsx';
+import RegisterPage from './components/RegisterPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -16,6 +18,14 @@ const router = createBrowserRouter([
   {
     path: "/detail",
     element: <DetailPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage/>,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage/>,
   },
 ]);
 

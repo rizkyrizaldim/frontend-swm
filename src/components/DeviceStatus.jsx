@@ -47,9 +47,9 @@ const DeviceStatus = () => {
     }, []);
     
     const handleDetailClick = (item) => {
-        navigate('/detail', { state: { detailData: item } });
-      };
-
+        navigate(`/detail?serialNumber=${item.serial_number}`, { state: { detailData: item } });
+    };
+    
     const formatTimestamp = (timestamp) => {
         const date = new Date(timestamp);
         const now = new Date();
@@ -120,6 +120,17 @@ const DeviceStatus = () => {
         }
     };
 
+    const getBatteryStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'stabil':
+                return 'text-green-500';
+            case 'drop':
+                return 'text-red-500';
+            default:
+                return 'text-black';
+        }
+    };
+
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
@@ -136,7 +147,7 @@ const DeviceStatus = () => {
                                 e.preventDefault();
                                 handlePageChange(i);
                             }}
-                            className={i === currentPage ? 'bg-[#F8E9E9] text-black' : ''}
+                            className={i === currentPage ? 'bg-gray-200 text-black' : ''}
                         >
                             {i}
                         </PaginationLink>
@@ -152,7 +163,7 @@ const DeviceStatus = () => {
                             e.preventDefault();
                             handlePageChange(1);
                         }}
-                        className={1 === currentPage ? 'bg-[#F8E9E9] text-black' : ''}
+                        className={1 === currentPage ? 'bg-gray-200 text-black' : ''}
                     >
                         1
                     </PaginationLink>
@@ -174,7 +185,7 @@ const DeviceStatus = () => {
                                 e.preventDefault();
                                 handlePageChange(i);
                             }}
-                            className={i === currentPage ? 'bg-[#F8E9E9] text-black' : ''}
+                            className={i === currentPage ? 'bg-gray-200 text-black' : ''}
                         >
                             {i}
                         </PaginationLink>
@@ -194,7 +205,7 @@ const DeviceStatus = () => {
                             e.preventDefault();
                             handlePageChange(totalPages);
             }}
-            className={totalPages === currentPage ? 'bg-[#F8E9E9] text-black' : ''}
+            className={totalPages === currentPage ? 'bg-gray-200 text-black' : ''}
         >
             {totalPages}
         </PaginationLink>
@@ -205,10 +216,10 @@ const DeviceStatus = () => {
     };
 
     return (
-        <div className="bg-[#F9F9F9] rounded-[30px] h-[600px] border border-[#BFB2B2] shadow-md shadow-[#606060] flex flex-col p-2 bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
+        <div className="bg-white shadow-lg border m-10 h-[90%] flex flex-col bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
             <div className="flex justify-end flex-grow-0 p-5 sticky top-0 left-0 lg:mr-4">
                 <Input
-                    type="text"
+                    type="tex"
                     className="w-56 py-0 px-5 rounded-full border"
                     placeholder="Search..."
                     value={searchTerm}
@@ -260,8 +271,8 @@ const DeviceStatus = () => {
                             <TableHead className="text-xs text-center">{(currentPage - 1) * itemsPerPage + index + 1}</TableHead>
                             <TableHead className="text-xs text-center">{item.serial_number}</TableHead>
                             <TableHead className={`text-xs text-center uppercase ${getSignalStatusColor(item.signalStatus)}`}>{item.signalStatus}</TableHead>
-                            <TableHead className="text-xs text-center">{item.rateDataFlow} m3/hari</TableHead>
-                            <TableHead className="text-xs text-center">{item.batteryStatus}</TableHead>
+                            <TableHead className="text-xs text-center">{item.rateDataFlow} m3 / hari</TableHead>
+                            <TableHead className={`text-xs text-center ${getBatteryStatusColor(item.batteryStatus)}`}>{item.batteryStatus}</TableHead>
                             <TableHead className="text-xs text-center">{formatTimestamp(item.timestamp)}</TableHead>
                             <TableHead className="text-xs text-center">
                                 <Button onClick={() => handleDetailClick(item)} className="bg-green-500 hover:bg-green-700 w-15 h-6">Detail</Button>

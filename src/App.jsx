@@ -10,10 +10,10 @@ function App() {
   
   return (
     <>
-      <div className="w-full bg-gray-200 h-screen lg:grid lg:grid-cols-[20%,75%] p-2 lg:py-5 gap-6 justify-center">
+      <div className="w-full h-screen bg-gray-200 flex lg:grid lg:grid-cols-[20%,80%] justify-center">
         <Sidebar content={content} setContent={setContent} />
 
-        <div className="rounded-[30px] flex flex-col gap-4">
+        <div className="overflow-y-scroll lg:overflow-hidden h-screen flex flex-col">
           <Navbar />
           {content}
         </div>
