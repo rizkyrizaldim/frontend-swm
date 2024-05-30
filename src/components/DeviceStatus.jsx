@@ -19,22 +19,30 @@ const DeviceStatus = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSignalStatus, setFilterSignalStatus] = useState('');
     const [filterBatteryStatus, setFilterBatteryStatus] = useState('');
+    const [filterConnectionStatus, setFilterConnectionStatus] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 20;
     const navigate = useNavigate();
     
     const fetchData = async () => {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            navigate('/login'); // Redirect to login if no token is found
+            return;
+        }
+
         try {
-            const response = await axios.get('http://36.92.168.180:6380/vito-anjay/dashboard/', {
+            const response = await axios.get('https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/dashboard/?limit=0', {
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     "ngrok-skip-browser-warning": "true",
                 },
                 withCredentials: false,
             });
             const allData = response.data.data;
-            console.log(response.data)
+            console.log(response.data);
             setData(allData);
             setTotalPages(Math.ceil(allData.length / itemsPerPage));
         } catch (error) {
@@ -93,10 +101,14 @@ const DeviceStatus = () => {
     const filteredData = data.filter(item =>
         (filterSignalStatus === '' || item.signalStatus.toLowerCase() === filterSignalStatus) &&
         (filterBatteryStatus === '' || item.batteryStatus.toLowerCase().includes(filterBatteryStatus)) &&
+        (filterConnectionStatus === '' || item.statusConnection.toLowerCase() === filterConnectionStatus.toLowerCase()) && // Perubahan di sini
         (item.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
          item.signalStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         item.batteryStatus.toLowerCase().includes(searchTerm.toLowerCase()))
+         item.batteryStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         item.statusConnection.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+    
+    
 
     const paginatedData = filteredData.slice(
         (currentPage - 1) * itemsPerPage,
@@ -204,13 +216,13 @@ const DeviceStatus = () => {
                         onClick={(e) => {
                             e.preventDefault();
                             handlePageChange(totalPages);
-            }}
-            className={totalPages === currentPage ? 'bg-gray-200 text-black' : ''}
-        >
-            {totalPages}
-        </PaginationLink>
-    </PaginationItem>
-);
+                        }}
+                        className={totalPages === currentPage ? 'bg-gray-200 text-black' : ''}
+                    >
+                        {totalPages}
+                    </PaginationLink>
+                </PaginationItem>
+            );
         }
         return paginationItems;
     };
@@ -219,7 +231,7 @@ const DeviceStatus = () => {
         <div className="bg-white shadow-lg border m-10 h-[90%] flex flex-col bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
             <div className="flex justify-end flex-grow-0 p-5 sticky top-0 left-0 lg:mr-4">
                 <Input
-                    type="tex"
+                    type="text"
                     className="w-56 py-0 px-5 rounded-full border"
                     placeholder="Search..."
                     value={searchTerm}
@@ -247,11 +259,16 @@ const DeviceStatus = () => {
                     <option value="stabil">Stabil</option>
                     <option value="drop">Drop</option>
                 </select>
-                <select className="px-3 py-2 rounded-md border">
-                    <option value="">Last Data Status</option>
-                    <option value="update">Update</option>
-                    <option value="aWeekAgo">A Week Ago</option>
+                <select
+                    value={filterConnectionStatus}
+                    onChange={(e) => setFilterConnectionStatus(e.target.value)}
+                    className="px-3 py-2 rounded-md border"
+                >
+                    <option value="">Connection Status</option>
+                    <option value="Connect">Connect</option>
+                    <option value="Disconnect">Disconnect</option>
                 </select>
+
             </div>
             <Table className='w-[900px] overflow-x-scroll rounded-[30px] lg:w-[97%] mx-auto '>
                 <TableHeader>
@@ -262,6 +279,7 @@ const DeviceStatus = () => {
                         <TableHead className="p-2 text-center font-bold text-black">Rate Data Flow</TableHead>
                         <TableHead className="p-2 text-center font-bold text-black">Status Baterai</TableHead>
                         <TableHead className="p-2 text-center font-bold text-black">Status Last Data</TableHead>
+                        <TableHead className="p-2 text-center font-bold text-black">Status Koneksi</TableHead>
                         <TableHead className="p-2 text-center font-bold text-black">Detail</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -274,6 +292,7 @@ const DeviceStatus = () => {
                             <TableHead className="text-xs text-center">{item.rateDataFlow} m3 / hari</TableHead>
                             <TableHead className={`text-xs text-center ${getBatteryStatusColor(item.batteryStatus)}`}>{item.batteryStatus}</TableHead>
                             <TableHead className="text-xs text-center">{formatTimestamp(item.timestamp)}</TableHead>
+                            <TableHead className="text-xs text-center">{item.statusConnection}</TableHead>
                             <TableHead className="text-xs text-center">
                                 <Button onClick={() => handleDetailClick(item)} className="bg-green-500 hover:bg-green-700 w-15 h-6">Detail</Button>
                             </TableHead>
@@ -313,3 +332,4 @@ const DeviceStatus = () => {
 }
 
 export default DeviceStatus;
+

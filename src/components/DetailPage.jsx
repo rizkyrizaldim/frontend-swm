@@ -9,8 +9,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Chart from 'chart.js/auto';
 
-const DetailPage = (setContent) => {
-  // const [content, setContent] = useState(<DeviceStatus />);
+const DetailPage = ({setContent}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const detailData = location.state?.detailData || {};
@@ -21,7 +20,7 @@ const DetailPage = (setContent) => {
   const [flowMeterChart, setFlowMeterChart] = useState(null);
   const [qualitySignalChart, setQualitySignalChart] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [filterMode, setFilterMode] = useState('all'); // 'all' or 'date'
+  const [filterMode, setFilterMode] = useState('all');
 
   const getSignalStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -45,8 +44,8 @@ const DetailPage = (setContent) => {
     const secondsInHour = secondsInMinute * 60;
     const secondsInDay = secondsInHour * 24;
     const secondsInWeek = secondsInDay * 7;
-    const secondsInMonth = secondsInDay * 30; // Average 30 days per month
-    const secondsInYear = secondsInDay * 365; // Average 365 days per year
+    const secondsInMonth = secondsInDay * 30;
+    const secondsInYear = secondsInDay * 365;
 
     if (timeDifference < secondsInMinute) {
       return 'Just now';
@@ -73,200 +72,224 @@ const DetailPage = (setContent) => {
 
   useEffect(() => {
     const fetchChartData = async () => {
+      const token = localStorage.getItem('authToken');
+        if (!token) {
+            navigate('/login'); // Redirect to login if no token is found
+            return;
+        }
+
       if (detailData.serial_number) {
         try {
-          const response = await fetch(`http://36.92.168.180:6380/vito-anjay/detail/?serial_number=${detailData.serial_number}`);
+          const response = await fetch(`https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/detail/?serial_number=${detailData.serial_number}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+              'ngrok-skip-browser-warning': 'true',
+            }
+          });
           const data = await response.json();
-          const chartData = data[detailData.serial_number];
 
-          // Sort the data by timestamp
-          chartData.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+          // Check if data[detailData.serial_number] exists and is not undefined
+          if (data && data[detailData.serial_number] !== undefined) {
+            const chartData = data[detailData.serial_number];
 
-          // Filter the data if filterMode is 'date'
-          const filteredData = filterMode === 'date' && selectedDate
-            ? chartData.filter(item => new Date(item.timestamp).toDateString() === selectedDate.toDateString())
-            : chartData;
+            // Sort the data by timestamp
+            if (Array.isArray(chartData)) {
+              chartData.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-          const labels = filteredData.map(item => item.timestamp.split(' ')[0]);
-          const batteryValues = filteredData.map(item => item.batteryValue);
-          const flowMeterValues = filteredData.map(item => item.flowMeter);
-          const rssiValues = filteredData.map(item => item.RSSI);
-          const snrValues = filteredData.map(item => item.SNR);
+              // Filter the data if filterMode is 'date'
+              const filteredData = filterMode === 'date' && selectedDate
+                ? chartData.filter(item => new Date(item.timestamp).toDateString() === selectedDate.toDateString())
+                : chartData;
 
-          const batteryCtx = batteryChartRef.current.getContext('2d');
-          if (batteryChart) {
-            batteryChart.destroy();
-          }
-          const newBatteryChart = new Chart(batteryCtx, {
-            type: 'line',
-            data: {
-              labels,
-              datasets: [{
-                label: 'Battery Status',
-                data: batteryValues,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                fill: false,
-              }]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: 'Timestamp'
-                  },
-                  ticks: {
-                    autoSkip: true,
-                  }
+              const labels = filteredData.map(item => item.timestamp.split(' ')[0]);
+              const batteryValues = filteredData.map(item => item.batteryValue);
+              const flowMeterValues = filteredData.map(item => item.flowMeter);
+              const rssiValues = filteredData.map(item => item.RSSI);
+              const snrValues = filteredData.map(item => item.SNR);
+
+              const batteryCtx = batteryChartRef.current.getContext('2d');
+              if (batteryChart) {
+                batteryChart.destroy();
+              }
+              const newBatteryChart = new Chart(batteryCtx, {
+                type: 'line',
+                data: {
+                  labels,
+                  datasets: [{
+                    label: 'Battery Status',
+                    data: batteryValues,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: false,
+                  }]
                 },
-                y: {
-                  title: {
-                    display: true,
-                    text: 'Battery Value'
-                  },
-                  min: 0,
-                  max: 4,
-                  ticks: {
-                    callback: function(value) {
-                      const tickValues = [0, 0.6, 1.2, 1.8, 2.4, 3.0, 3.6];
-                      if (tickValues.includes(value)) {
-                        return value;
+                options: {
+                  responsive: true,
+                  scales: {
+                    x: {
+                      title: {
+                        display: true,
+                        text: 'Timestamp'
+                      },
+                      ticks: {
+                        autoSkip: true,
                       }
-                      return null; // Return null to skip drawing this tick
                     },
-                    stepSize: 0.2 // Adjust the step size to ensure custom ticks are used
-                  }
-                }
-              },
-              plugins: {
-                tooltip: {
-                  callbacks: {
-                    label: function(context) {
-                      const date = new Date(filteredData[context.dataIndex].timestamp);
-                      const time = date.toTimeString().split(' ')[0];
-                      return `Battery Value: ${context.parsed.y}, Time: ${time}`;
+                    y: {
+                      title: {
+                        display: true,
+                        text: 'Battery Value'
+                      },
+                      min: 0,
+                      max: 4,
+                      ticks: {
+                        callback: function(value) {
+                          const tickValues = [0, 0.6, 1.2, 1.8, 2.4, 3.0, 3.6];
+                          if (tickValues.includes(value)) {
+                            return value;
+                          }
+                          return null;
+                        },
+                        stepSize: 0.2
+                      }
                     }
-                  }
-                }
-              }
-            }
-          });
-          setBatteryChart(newBatteryChart);
-
-          const flowMeterCtx = flowMeterChartRef.current.getContext('2d');
-          if (flowMeterChart) {
-            flowMeterChart.destroy();
-          }
-          const newFlowMeterChart = new Chart(flowMeterCtx, {
-            type: 'line',
-            data: {
-              labels,
-              datasets: [{
-                label: 'Flow Meter',
-                data: flowMeterValues,
-                borderColor: 'rgba(153, 102, 255, 1)',
-                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                fill: false,
-              }]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: 'Timestamp'
                   },
-                  ticks: {
-                    autoSkip: true,
-                  }
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: 'Flow Meter Value'
-                  },
-                }
-              },
-              plugins: {
-                tooltip: {
-                  callbacks: {
-                    label: function(context) {
-                      const date = new Date(filteredData[context.dataIndex].timestamp);
-                      const time = date.toTimeString().split(' ')[0];
-                      return `Flow Meter Value: ${context.parsed.y}, Time: ${time}`;
-                    }
-                  }
-                }
-              }
-            }
-          });
-          setFlowMeterChart(newFlowMeterChart);
-
-          const qualitySignalCtx = qualitySignalChartRef.current.getContext('2d');
-          if (qualitySignalChart) {
-            qualitySignalChart.destroy();
-          }
-          const newQualitySignalChart = new Chart(qualitySignalCtx, {
-            type: 'line',
-            data: {
-              labels,
-              datasets: [
-                {
-                  label: 'RSSI',
-                  data: rssiValues,
-                  borderColor: 'rgba(255, 99, 132, 1)',
-                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                  fill: false,
-                },
-                {
-                  label: 'SNR',
-                  data: snrValues,
-                  borderColor: 'rgba(54, 162, 235, 1)',
-                  backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                  fill: false,
-                }
-              ]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: 'Timestamp'
-                  },
-                  ticks: {
-                    autoSkip: true,
-                  }
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: 'Signal Quality Value'
-                  }
-                }
-              },
-              plugins: {
-                tooltip: {
-                  callbacks: {
-                    label: function(context) {
-                      const date = new Date(filteredData[context.dataIndex].timestamp);
-                      const time = date.toTimeString().split(' ')[0];
-                      if (context.dataset.label === 'RSSI') {
-                        return `RSSI: ${context.parsed.y}, Time: ${time}`;
-                      } else {
-                        return `SNR: ${context.parsed.y}, Time: ${time}`;
+                  plugins: {
+                    tooltip: {
+                      callbacks: {
+                        label: function(context) {
+                          const date = new Date(filteredData[context.dataIndex].timestamp);
+                          const time = date.toTimeString().split(' ')[0];
+                          return `Battery Value: ${context.parsed.y}, Time: ${time}`;
+                        }
                       }
                     }
                   }
                 }
+              });
+              setBatteryChart(newBatteryChart);
+
+              const flowMeterCtx = flowMeterChartRef.current.getContext('2d');
+              if (flowMeterChart) {
+                flowMeterChart.destroy();
               }
+              const newFlowMeterChart = new Chart(flowMeterCtx, {
+                type: 'line',
+                data: {
+                  labels,
+                  datasets: [{
+                    label: 'Flow Meter',
+                    data: flowMeterValues,
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    fill: false,
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  scales: {
+                    x: {
+                      title: {
+                        display: true,
+                        text: 'Timestamp'
+                      },
+                      ticks: {
+                        autoSkip: true,
+                      }
+                    },
+                    y: {
+                      title: {
+                        display: true,
+                        text: 'Flow Meter Value'
+                      },
+                    }
+                  },
+                  plugins: {
+                    tooltip: {
+                      callbacks: {
+                        label: function(context) {
+                          const date = new Date(filteredData[context.dataIndex].timestamp);
+                          const time = date.toTimeString().split(' ')[0];
+                          return `Flow Meter Value: ${context.parsed.y}, Time: ${time}`;
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+              setFlowMeterChart(newFlowMeterChart);
+
+              const qualitySignalCtx = qualitySignalChartRef.current.getContext('2d');
+              if (qualitySignalChart) {
+                qualitySignalChart.destroy();
+              }
+              const newQualitySignalChart = new Chart(qualitySignalCtx, {
+                type: 'line',
+                data: {
+                  labels,
+                  datasets: [
+                    {
+                      label: 'RSSI',
+                      data: rssiValues,
+                      borderColor: 'rgba(255, 99, 132, 1)',
+                      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                      fill: false,
+                    },
+                    {
+                      label: 'SNR',
+                      data: snrValues,
+                      borderColor: 'rgba(54, 162, 235, 1)',
+                      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                      fill: false,
+                    }
+                  ]
+                },
+                options: {
+                  responsive: true,
+                  scales: {
+                    x: {
+                      title: {
+                        display: true,
+                        text: 'Timestamp'
+                      },
+                      ticks: {
+                        autoSkip: true,
+                      }
+                    },
+                    y: {
+                      title: {
+                        display: true,
+                        text: 'Signal Quality Value'
+                      }
+                    }
+                  },
+                  plugins: {
+                    tooltip: {
+                      callbacks: {
+                        label: function(context) {
+                          const date = new Date(filteredData[context.dataIndex].timestamp);
+                          const time = date.toTimeString().split(' ')[0];
+                          if (context.dataset.label === 'RSSI') {
+                            return `RSSI: ${context.parsed.y}, Time: ${time}`;
+                          } else {
+                            return `SNR: ${context.parsed.y}, Time: ${time}`;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+              setQualitySignalChart(newQualitySignalChart);
+            } else {
+              console.error('Invalid chart data:', chartData);
+              return;
             }
-          });
-          setQualitySignalChart(newQualitySignalChart);
+          } else {
+            console.error('Invalid data structure:', data);
+            return;
+          }
         } catch (error) {
           console.error('Error fetching chart data:', error);
         }
@@ -314,6 +337,12 @@ const DetailPage = (setContent) => {
                   <p className="mr-4">:</p>
                   <p className="flex-grow">{formatTimestamp(detailData.timestamp)}</p>
                 </div>
+
+                <p className="text-left col-span-1">Status Koneksi</p>
+                <div className="col-span-2 flex items-center">
+                  <p className="mr-4">:</p>
+                  <p className="flex-grow">{detailData.statusConnection}</p>
+                </div>
               </div>
               </CardContent>
             </Card>
@@ -343,4 +372,3 @@ const DetailPage = (setContent) => {
 }
 
 export default DetailPage;
-
