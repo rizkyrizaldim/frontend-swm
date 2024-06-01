@@ -40,6 +40,10 @@ const LoginPage = () => {
     }
   };
 
+  const handleRegister = () => {
+    navigate('/register');
+  };
+
   return (
     <div className="w-full h-screen bg-gray-200 flex items-center justify-center">
       <div className="flex flex-col items-center">
@@ -67,6 +71,15 @@ const LoginPage = () => {
           >
             Login
           </button>
+          <div className="mt-4">
+            <span>Don't have an account? </span>
+            <button
+              onClick={handleRegister}
+              className="text-blue-500 hover:underline focus:outline-none"
+            >
+              Register
+            </button>
+          </div>
         </div>
       </div>
     </div>

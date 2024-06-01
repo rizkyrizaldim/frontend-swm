@@ -1,30 +1,29 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Input } from './ui/input'
-
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Input } from './ui/input';
 
 const RegisterPage = () => {
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [error, setError] = useState('')
-    const navigate = useNavigate()
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleRegister = async () => {
         if (!name || !email || !password || !confirmPassword) {
-            setError('All fields are required')
-            return
+            setError('All fields are required');
+            return;
         }
         if (password !== confirmPassword) {
-            setError('Passwords do not match')
-            return
+            setError('Passwords do not match');
+            return;
         }
 
-        const passwordRegex = /^(?=.*[A-Z]).{8,}$/
+        const passwordRegex = /^(?=.*[A-Z]).{8,}$/;
         if (!passwordRegex.test(password)) {
-            setError('Password must be at least 8 characters long and include at least one uppercase letter')
-            return
+            setError('Password must be at least 8 characters long and include at least one uppercase letter');
+            return;
         }
 
         // API request
@@ -41,18 +40,22 @@ const RegisterPage = () => {
                     email,
                     password,
                 }),
-            })
+            });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                throw new Error('Network response was not ok');
             }
 
             // Assuming a successful registration should navigate to the login page
-            navigate('/login')
+            navigate('/login');
         } catch (error) {
-            setError('Registration failed: ' + error.message)
+            setError('Registration failed: ' + error.message);
         }
-    }
+    };
+
+    const handleLoginNavigate = () => {
+        navigate('/login');
+    };
 
     return (
         <div className="w-full h-screen bg-gray-200 flex items-center justify-center">
@@ -95,10 +98,19 @@ const RegisterPage = () => {
                     >
                         Register
                     </button>
+                    <div className="mt-4">
+                        <span>Already have an account? </span>
+                        <button
+                            onClick={handleLoginNavigate}
+                            className="text-blue-500 hover:underline focus:outline-none"
+                        >
+                            Login
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default RegisterPage
+export default RegisterPage;
