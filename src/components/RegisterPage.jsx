@@ -28,7 +28,7 @@ const RegisterPage = () => {
 
         // API request
         try {
-            const response = await fetch('https://jaguar-neat-dingo.ngrok-free.app/swmdepok/register/', {
+            const response = await fetch('https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/register/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
