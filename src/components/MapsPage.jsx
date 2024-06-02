@@ -6,26 +6,23 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js';
+import { Input } from "@/components/ui/input";
 
 // Fungsi untuk menentukan ikon marker berdasarkan signalStatus
 const getMarkerIcon = (signalStatus) => {
-  let iconUrl, iconColor;
+  let iconUrl;
   switch (signalStatus) {
     case 'bagus':
       iconUrl = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png';
-      iconColor = 'green';
       break;
     case 'sedang':
       iconUrl = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png';
-      iconColor = 'yellow';
       break;
     case 'buruk':
       iconUrl = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png';
-      iconColor = 'red';
       break;
     default:
       iconUrl = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png';
-      iconColor = 'blue';
   }
 
   return L.icon({
@@ -58,7 +55,9 @@ const MarkerClusterGroup = ({ markers }) => {
 
 const MapsPage = () => {
   const [markers, setMarkers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const position = [-6.4179132, 106.738124]; // Center coordinates for the map
+  const [filter, setFilter] = useState('all');
 
   const fetchData = async () => {
     try {
@@ -70,11 +69,17 @@ const MapsPage = () => {
         withCredentials: false,
       });
       const allData = response.data.data;
-      console.log(response.data)
+      console.log(response.data);
       const formattedData = allData.map(item => ({
         position: [parseFloat(item.latitude || 0), parseFloat(item.longitude || 0)],
         popupContent: item.serial_number,
-        tooltipContent: ` ${item.serial_number} <br /> Longitude: ${parseFloat(item.longitude || 0).toFixed(6)} <br /> Latitude: ${parseFloat(item.latitude || 0).toFixed(6)} `,
+        tooltipContent: `
+          ${item.serial_number} <br />
+          Longitude: ${parseFloat(item.longitude || 0).toFixed(6)} <br />
+          Latitude: ${parseFloat(item.latitude || 0).toFixed(6)} <br />
+          Alamat: ${item.alamat} <br />
+          Status Koneksi: ${item.statusConnection}
+        `,
         signalStatus: item.signalStatus.toLowerCase(), // Ubah signalStatus menjadi huruf kecil
       }));
       setMarkers(formattedData);
@@ -88,8 +93,34 @@ const MapsPage = () => {
     fetchData();
   }, []);
 
+  // Filter markers based on the search term
+  const filteredMarkers = markers.filter(marker => {
+    const matchesSearchTerm = marker.popupContent.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filter === 'all' || marker.signalStatus === filter;
+    return matchesSearchTerm && matchesFilter;
+  });
+
   return (
     <div className="bg-white shadow-lg border m-10 h-[90%] flex flex-col border-shadow-2xl overflow-x-scroll lg:overflow-hidden">
+      <div className='flex justify-end'>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="px-5 m-2 border rounded-sm text-sm"
+        >
+          <option value="all">Signal Status</option>
+          <option value="bagus">Bagus</option>
+          <option value="sedang">Sedang</option>
+          <option value="buruk">Buruk</option>
+        </select>
+        <Input
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-56 m-2 p-5 rounded-full border"
+        />
+      </div>
       <MapContainer
         center={position}
         zoom={13}
@@ -100,7 +131,7 @@ const MapsPage = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MarkerClusterGroup markers={markers} />
+        <MarkerClusterGroup markers={filteredMarkers} />
       </MapContainer>
     </div>
   );

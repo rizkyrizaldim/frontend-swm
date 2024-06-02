@@ -143,6 +143,17 @@ const DeviceStatus = () => {
         }
     };
 
+    const getConnectionStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'connect' :
+                return 'text-green-500';
+            case 'disconnect' :
+                return 'text-red-500';
+            default :
+                return 'text-black';
+        }
+    }
+
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
@@ -292,7 +303,7 @@ const DeviceStatus = () => {
                             <TableHead className="text-xs text-center">{item.rateDataFlow} m3 / hari</TableHead>
                             <TableHead className={`text-xs text-center ${getBatteryStatusColor(item.batteryStatus)}`}>{item.batteryStatus}</TableHead>
                             <TableHead className="text-xs text-center">{formatTimestamp(item.timestamp)}</TableHead>
-                            <TableHead className="text-xs text-center">{item.statusConnection}</TableHead>
+                            <TableHead className={`text-xs text-center ${getConnectionStatusColor(item.statusConnection)}`}>{item.statusConnection}</TableHead>
                             <TableHead className="text-xs text-center">
                                 <Button onClick={() => handleDetailClick(item)} className="bg-green-500 hover:bg-green-700 w-15 h-6">Detail</Button>
                             </TableHead>
