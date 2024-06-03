@@ -382,9 +382,9 @@ const DetailPage = ({setContent}) => {
                   />
                 )}
               </div>
-              <canvas className='border' ref={batteryChartRef} lg:width="897" lg:height="204.56" />
-              <canvas className='border' ref={flowMeterChartRef} lg:width="897" lg:height="204.56" />
-              <canvas className='border' ref={qualitySignalChartRef} lg:width="897" lg:height="204.56" />
+              <canvas className='border' ref={batteryChartRef} width="897" height="204.56" />
+              <canvas className='border' ref={flowMeterChartRef} width="897" height="204.56" />
+              <canvas className='border' ref={qualitySignalChartRef} width="897" height="204.56" />
             </div>
           </div>
         </div>
