@@ -72,7 +72,7 @@ const MapsPage = () => {
       console.log(response.data);
       const formattedData = allData.map(item => ({
         position: [parseFloat(item.latitude || 0), parseFloat(item.longitude || 0)],
-        // popupContent: item.serial_number,
+        popupContent: item.serial_number,
         tooltipContent: `
           ${item.serial_number} <br />
           Longitude: ${parseFloat(item.longitude || 0).toFixed(6)} <br />
