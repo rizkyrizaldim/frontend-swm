@@ -72,7 +72,7 @@ const MapsPage = () => {
       console.log(response.data);
       const formattedData = allData.map(item => ({
         position: [parseFloat(item.latitude || 0), parseFloat(item.longitude || 0)],
-        popupContent: item.serial_number,
+        // popupContent: item.serial_number,
         tooltipContent: `
           ${item.serial_number} <br />
           Longitude: ${parseFloat(item.longitude || 0).toFixed(6)} <br />
@@ -93,7 +93,7 @@ const MapsPage = () => {
     fetchData();
   }, []);
 
-  // Filter markers based on the search term
+  // Filter markers based on the search term and selected filter
   const filteredMarkers = markers.filter(marker => {
     const matchesSearchTerm = marker.popupContent.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filter === 'all' || marker.signalStatus === filter;
@@ -101,12 +101,12 @@ const MapsPage = () => {
   });
 
   return (
-    <div className="bg-white shadow-lg border m-10 h-[90%] flex flex-col border-shadow-2xl overflow-x-scroll lg:overflow-hidden">
-      <div className='flex justify-end'>
+    <div className="bg-white shadow-lg border m-10 h-[90%] flex flex-col border-shadow-2xl overflow-x-scroll lg:overflow-hidden relative">
+      <div className='flex justify-end items-center absolute top-2 right-2 z-[1000] space-x-2  p-0 rounded'>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-5 m-2 border rounded-sm text-sm"
+          className="px-3 py-1 border rounded-sm text-sm"
         >
           <option value="all">Signal Status</option>
           <option value="bagus">Bagus</option>
@@ -118,7 +118,7 @@ const MapsPage = () => {
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-56 m-2 p-5 rounded-full border"
+          className="w-56 p-5 border rounded-full"
         />
       </div>
       <MapContainer
