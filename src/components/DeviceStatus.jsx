@@ -239,7 +239,7 @@ const DeviceStatus = () => {
     };
 
     return (
-        <div className="bg-white shadow-lg border m-10 h-[90%] flex flex-col bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
+        <div className="bg-white shadow-lg border lg:m-10 m-4 h-[90%] flex flex-col bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
             <div className="flex justify-end flex-grow-0 p-5 sticky top-0 left-0 lg:mr-4">
                 <Input
                     type="text"

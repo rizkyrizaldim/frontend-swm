@@ -35,6 +35,28 @@ const DetailPage = ({setContent}) => {
     }
   };
 
+  const getBatteryStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+        case 'stabil':
+            return 'text-green-500';
+        case 'drop':
+            return 'text-red-500';
+        default:
+            return 'text-black';
+    }
+  };
+
+  const getConnectionStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+        case 'connect' :
+            return 'text-green-500';
+        case 'disconnect' :
+            return 'text-red-500';
+        default :
+            return 'text-black';
+    }
+  }
+
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -305,9 +327,9 @@ const DetailPage = ({setContent}) => {
         <Sidebar setContent={setContent} />
         <div className="rounded-[30px] flex flex-col">
           <Navbar />
-          <div className="bg-white relative m-10 flex flex-col p-5 shadow-lg overflow-x-scroll lg:overflow-hidden">
+          <div className="bg-white relative lg:m-10 m-4 flex flex-col p-5 shadow-lg overflow-x-scroll lg:overflow-hidden">
             <Button onClick={() => navigate('/')} className='absolute top-10 right-10 w-15 h-6 bg-green-500 hover:bg-green-700 items-center'>Back</Button>
-            <Card className='w-96 rounded-[30px] border ml-5 mt-5'>
+            <Card className='lg:w-96 rounded-[30px] border ml-5 mt-5'>
               <CardHeader className="flex flex-row items-center">
                 <img src="/image 1.png" alt="" />
                 <CardTitle className="ml-3">{detailData.serial_number}</CardTitle>
@@ -323,7 +345,7 @@ const DetailPage = ({setContent}) => {
                 <p className="text-left col-span-1">Battery Status</p>
                 <div className="col-span-2 flex items-center">
                   <p className="mr-4">:</p>
-                  <p className="flex-grow">{detailData.batteryStatus}</p>
+                  <p className="flex-grow"><span className={getBatteryStatusColor(detailData.batteryStatus)}>{detailData.batteryStatus}</span></p>
                 </div>
                 
                 <p className="text-left col-span-1">Rate Data Flow</p>
@@ -341,7 +363,7 @@ const DetailPage = ({setContent}) => {
                 <p className="text-left col-span-1">Status Koneksi</p>
                 <div className="col-span-2 flex items-center">
                   <p className="mr-4">:</p>
-                  <p className="flex-grow">{detailData.statusConnection}</p>
+                  <p className="flex-grow"><span className={getConnectionStatusColor(detailData.statusConnection)}>{detailData.statusConnection}</span></p>
                 </div>
               </div>
               </CardContent>
@@ -360,9 +382,9 @@ const DetailPage = ({setContent}) => {
                   />
                 )}
               </div>
-              <canvas className='border' ref={batteryChartRef} width="897" height="204.56" />
-              <canvas className='border' ref={flowMeterChartRef} width="897" height="204.56" />
-              <canvas className='border' ref={qualitySignalChartRef} width="897" height="204.56" />
+              <canvas className='border' ref={batteryChartRef} lg:width="897" lg:height="204.56" />
+              <canvas className='border' ref={flowMeterChartRef} lg:width="897" lg:height="204.56" />
+              <canvas className='border' ref={qualitySignalChartRef} lg:width="897" lg:height="204.56" />
             </div>
           </div>
         </div>
