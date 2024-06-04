@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -43,7 +43,7 @@ const MarkerClusterGroup = ({ markers }) => {
     markers.forEach(markerData => {
       const marker = L.marker(markerData.position, { icon: getMarkerIcon(markerData.signalStatus) }); // Gunakan ikon berdasarkan signalStatus
       marker.bindPopup(markerData.popupContent);
-      marker.bindTooltip(markerData.tooltipContent);
+      // marker.bindTooltip(markerData.tooltipContent);
       markerClusterGroup.addLayer(marker);
     });
     return () => {
@@ -59,10 +59,17 @@ const MapsPage = () => {
   const position = [-6.4179132, 106.738124]; // Center coordinates for the map
   const [filter, setFilter] = useState('all');
 
+
   const fetchData = async () => {
+    const token = localStorage.getItem('authToken');
+        if (!token) {
+            navigate('/login'); // Redirect to login if no token is found
+            return;
+        }
     try {
       const response = await axios.get('https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/lokasi/', {
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
           'ngrok-skip-browser-warning': 'true',
         },
@@ -72,13 +79,15 @@ const MapsPage = () => {
       console.log(response.data);
       const formattedData = allData.map(item => ({
         position: [parseFloat(item.latitude || 0), parseFloat(item.longitude || 0)],
-        popupContent: item.serial_number,
-        tooltipContent: `
+        popupContent: `
           ${item.serial_number} <br />
           Longitude: ${parseFloat(item.longitude || 0).toFixed(6)} <br />
           Latitude: ${parseFloat(item.latitude || 0).toFixed(6)} <br />
           Alamat: ${item.alamat} <br />
-          Status Koneksi: ${item.statusConnection}
+          Status Koneksi: ${item.statusConnection} <br />
+          <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded">
+            Detail
+          </button>
         `,
         signalStatus: item.signalStatus.toLowerCase(), // Ubah signalStatus menjadi huruf kecil
       }));

@@ -102,7 +102,7 @@ const DetailPage = ({setContent}) => {
 
       if (detailData.serial_number) {
         try {
-          const response = await fetch(`https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/detail/?serial_number=${detailData.serial_number}`, {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/swmdepok/detail/?serial_number=${detailData.serial_number}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Accept': 'application/json',

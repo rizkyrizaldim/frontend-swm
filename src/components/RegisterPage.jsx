@@ -11,7 +11,7 @@ const RegisterPage = () => {
     const navigate = useNavigate();
 
     const handleRegister = async () => {
-        if (!name || !email || !password || !confirmPassword) {
+        if (!email || !password || !confirmPassword) {
             setError('All fields are required');
             return;
         }
@@ -28,7 +28,7 @@ const RegisterPage = () => {
 
         // API request
         try {
-            const response = await fetch('https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/register/', {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/swmdepok/register/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,13 +64,6 @@ const RegisterPage = () => {
                 <div className="bg-white p-8 rounded-lg shadow-md w-[25vw] flex flex-col items-center">
                     <h1 className="text-2xl font-bold mb-4">Register</h1>
                     {error && <div className="text-red-500 mb-4">{error}</div>}
-                    <Input 
-                        type="text" 
-                        placeholder="Fill your name here" 
-                        className="mb-4 w-full" 
-                        value={name} 
-                        onChange={(e) => setName(e.target.value)} 
-                    />
                     <Input 
                         type="email" 
                         placeholder="Fill your email here" 

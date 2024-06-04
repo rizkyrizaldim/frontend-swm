@@ -16,7 +16,7 @@ const LoginPage = () => {
     }
 
     try {
-      const response = await axios.post('https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/login/', {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/swmdepok/login/`, {
         email,
         password
       }, {

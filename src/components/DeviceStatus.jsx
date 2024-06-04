@@ -33,7 +33,7 @@ const DeviceStatus = () => {
         }
 
         try {
-            const response = await axios.get('https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/dashboard/?limit=0', {
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/swmdepok/dashboard/?limit=0`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
