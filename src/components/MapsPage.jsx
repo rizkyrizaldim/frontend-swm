@@ -67,7 +67,7 @@ const MapsPage = () => {
             return;
         }
     try {
-      const response = await axios.get('https://firm-hopefully-dolphin.ngrok-free.app/swmdepok/lokasi/', {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/swmdepok/lokasi/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
