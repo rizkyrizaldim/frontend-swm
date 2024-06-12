@@ -28,7 +28,7 @@ const RegisterPage = () => {
 
         // API request
         try {
-            const response = await fetch(`https://frog-quality-ewe.ngrok-free.app/swmdepok/register/`, {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/swmdepok/register/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
