@@ -1,18 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import DeviceStatus from './DeviceStatus';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Chart from 'chart.js/auto';
 
-const DetailPage = ({setContent}) => {
+const DetailPage = ({ setContent }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const detailData = location.state?.detailData || {};
+  const detailData = location.state?.detailData || {
+    signalStatus: '',
+    batteryStatus: '',
+    statusConnection: '',
+    rateDataFlow: '',
+    timestamp: '',
+    serial_number: '',
+  };
   const batteryChartRef = useRef(null);
   const flowMeterChartRef = useRef(null);
   const qualitySignalChartRef = useRef(null);
@@ -23,7 +29,7 @@ const DetailPage = ({setContent}) => {
   const [filterMode, setFilterMode] = useState('all');
 
   const getSignalStatusColor = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'bagus':
         return 'text-green-500';
       case 'sedang':
@@ -36,26 +42,26 @@ const DetailPage = ({setContent}) => {
   };
 
   const getBatteryStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-        case 'stabil':
-            return 'text-green-500';
-        case 'drop':
-            return 'text-red-500';
-        default:
-            return 'text-black';
+    switch (status?.toLowerCase()) {
+      case 'stabil':
+        return 'text-green-500';
+      case 'drop':
+        return 'text-red-500';
+      default:
+        return 'text-black';
     }
   };
 
   const getConnectionStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-        case 'connect' :
-            return 'text-green-500';
-        case 'disconnect' :
-            return 'text-red-500';
-        default :
-            return 'text-black';
+    switch (status?.toLowerCase()) {
+      case 'connect':
+        return 'text-green-500';
+      case 'disconnect':
+        return 'text-red-500';
+      default:
+        return 'text-black';
     }
-  }
+  };
 
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
@@ -95,10 +101,10 @@ const DetailPage = ({setContent}) => {
   useEffect(() => {
     const fetchChartData = async () => {
       const token = localStorage.getItem('authToken');
-        if (!token) {
-            navigate('/login'); // Redirect to login if no token is found
-            return;
-        }
+      if (!token) {
+        navigate('/login'); // Redirect to login if no token is found
+        return;
+      }
 
       if (detailData.serial_number) {
         try {
@@ -166,7 +172,7 @@ const DetailPage = ({setContent}) => {
                       min: 0,
                       max: 4,
                       ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                           const tickValues = [0, 0.6, 1.2, 1.8, 2.4, 3.0, 3.6];
                           if (tickValues.includes(value)) {
                             return value;
@@ -180,7 +186,7 @@ const DetailPage = ({setContent}) => {
                   plugins: {
                     tooltip: {
                       callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                           const date = new Date(filteredData[context.dataIndex].timestamp);
                           const time = date.toTimeString().split(' ')[0];
                           return `Battery Value: ${context.parsed.y}, Time: ${time}`;
@@ -230,7 +236,7 @@ const DetailPage = ({setContent}) => {
                   plugins: {
                     tooltip: {
                       callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                           const date = new Date(filteredData[context.dataIndex].timestamp);
                           const time = date.toTimeString().split(' ')[0];
                           return `Flow Meter Value: ${context.parsed.y}, Time: ${time}`;
@@ -289,7 +295,7 @@ const DetailPage = ({setContent}) => {
                   plugins: {
                     tooltip: {
                       callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                           const date = new Date(filteredData[context.dataIndex].timestamp);
                           const time = date.toTimeString().split(' ')[0];
                           if (context.dataset.label === 'RSSI') {
@@ -335,37 +341,37 @@ const DetailPage = ({setContent}) => {
                 <CardTitle className="ml-3">{detailData.serial_number}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm mb-3">
-              <div className="grid grid-cols-3">
-                <p className="text-left col-span-1">Signal Status</p>
-                <div className="col-span-2 flex items-center">
-                  <p className="mr-4">:</p>
-                  <p className="flex-grow"><span className={getSignalStatusColor(detailData.signalStatus)}>{detailData.signalStatus.toUpperCase()}</span></p>
-                </div>
-                
-                <p className="text-left col-span-1">Battery Status</p>
-                <div className="col-span-2 flex items-center">
-                  <p className="mr-4">:</p>
-                  <p className="flex-grow"><span className={getBatteryStatusColor(detailData.batteryStatus)}>{detailData.batteryStatus}</span></p>
-                </div>
-                
-                <p className="text-left col-span-1">Rate Data Flow</p>
-                <div className="col-span-2 flex items-center">
-                  <p className="mr-4">:</p>
-                  <p className="flex-grow">{detailData.rateDataFlow} m3 / hari</p>
-                </div>
-                
-                <p className="text-left col-span-1">Status Last Data</p>
-                <div className="col-span-2 flex items-center">
-                  <p className="mr-4">:</p>
-                  <p className="flex-grow">{formatTimestamp(detailData.timestamp)}</p>
-                </div>
+                <div className="grid grid-cols-3">
+                  <p className="text-left col-span-1">Signal Status</p>
+                  <div className="col-span-2 flex items-center">
+                    <p className="mr-4">:</p>
+                    <p className="flex-grow"><span className={getSignalStatusColor(detailData.signalStatus)}>{detailData.signalStatus?.toUpperCase()}</span></p>
+                  </div>
 
-                <p className="text-left col-span-1">Status Koneksi</p>
-                <div className="col-span-2 flex items-center">
-                  <p className="mr-4">:</p>
-                  <p className="flex-grow"><span className={getConnectionStatusColor(detailData.statusConnection)}>{detailData.statusConnection}</span></p>
+                  <p className="text-left col-span-1">Battery Status</p>
+                  <div className="col-span-2 flex items-center">
+                    <p className="mr-4">:</p>
+                    <p className="flex-grow"><span className={getBatteryStatusColor(detailData.batteryStatus)}>{detailData.batteryStatus}</span></p>
+                  </div>
+
+                  <p className="text-left col-span-1">Rate Data Flow</p>
+                  <div className="col-span-2 flex items-center">
+                    <p className="mr-4">:</p>
+                    <p className="flex-grow">{detailData.rateDataFlow} m3 / hari</p>
+                  </div>
+
+                  <p className="text-left col-span-1">Status Last Data</p>
+                  <div className="col-span-2 flex items-center">
+                    <p className="mr-4">:</p>
+                    <p className="flex-grow">{formatTimestamp(detailData.timestamp)}</p>
+                  </div>
+
+                  <p className="text-left col-span-1">Status Koneksi</p>
+                  <div className="col-span-2 flex items-center">
+                    <p className="mr-4">:</p>
+                    <p className="flex-grow"><span className={getConnectionStatusColor(detailData.statusConnection)}>{detailData.statusConnection}</span></p>
+                  </div>
                 </div>
-              </div>
               </CardContent>
             </Card>
             <div className="flex flex-col gap-4 mt-4">
@@ -394,3 +400,4 @@ const DetailPage = ({setContent}) => {
 }
 
 export default DetailPage;
+

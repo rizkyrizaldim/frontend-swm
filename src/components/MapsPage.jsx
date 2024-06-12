@@ -7,6 +7,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js';
 import { Input } from "@/components/ui/input";
+import { useNavigate } from 'react-router-dom';
 
 // Fungsi untuk menentukan ikon marker berdasarkan signalStatus
 const getMarkerIcon = (signalStatus) => {
@@ -41,9 +42,8 @@ const MarkerClusterGroup = ({ markers }) => {
     const markerClusterGroup = L.markerClusterGroup();
     map.addLayer(markerClusterGroup);
     markers.forEach(markerData => {
-      const marker = L.marker(markerData.position, { icon: getMarkerIcon(markerData.signalStatus) }); // Gunakan ikon berdasarkan signalStatus
+      const marker = L.marker(markerData.position, { icon: getMarkerIcon(markerData.signalStatus) });
       marker.bindPopup(markerData.popupContent);
-      // marker.bindTooltip(markerData.tooltipContent);
       markerClusterGroup.addLayer(marker);
     });
     return () => {
@@ -58,14 +58,14 @@ const MapsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const position = [-6.4179132, 106.738124]; // Center coordinates for the map
   const [filter, setFilter] = useState('all');
-
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     const token = localStorage.getItem('authToken');
-        if (!token) {
-            navigate('/login'); // Redirect to login if no token is found
-            return;
-        }
+    if (!token) {
+      navigate('/login'); // Redirect to login if no token is found
+      return;
+    }
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/swmdepok/lokasi/`, {
         headers: {
@@ -85,11 +85,9 @@ const MapsPage = () => {
           Latitude: ${parseFloat(item.latitude || 0).toFixed(6)} <br />
           Alamat: ${item.alamat} <br />
           Status Koneksi: ${item.statusConnection} <br />
-          <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded">
-            Detail
-          </button>
+          <button onclick="window.showDetail('${item.serial_number}')">Detail</button>
         `,
-        signalStatus: item.signalStatus.toLowerCase(), // Ubah signalStatus menjadi huruf kecil
+        signalStatus: item.signalStatus.toLowerCase(),
       }));
       setMarkers(formattedData);
       console.log(`Number of markers fetched: ${formattedData.length}`);
@@ -99,10 +97,12 @@ const MapsPage = () => {
   };
 
   useEffect(() => {
+    window.showDetail = (serialNumber) => {
+      navigate(`/detail?serialNumber=${serialNumber}`);
+    };
     fetchData();
-  }, []);
+  }, [navigate]);
 
-  // Filter markers based on the search term and selected filter
   const filteredMarkers = markers.filter(marker => {
     const matchesSearchTerm = marker.popupContent.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filter === 'all' || marker.signalStatus === filter;

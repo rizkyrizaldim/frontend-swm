@@ -25,10 +25,18 @@ const DeviceStatus = () => {
     const itemsPerPage = 20;
     const navigate = useNavigate();
     
+    const isTokenExpired = (token) => {
+        const payloadBase64 = token.split('.')[1];
+        const payload = JSON.parse(atob(payloadBase64));
+        const expirationTime = payload.exp * 1000;
+        return Date.now() > expirationTime;
+    };
+
     const fetchData = async () => {
         const token = localStorage.getItem('authToken');
-        if (!token) {
-            navigate('/login'); // Redirect to login if no token is found
+        if (!token || isTokenExpired(token)) {
+            localStorage.removeItem('authToken');
+            navigate('/login'); // Redirect to login if no token is found or token is expired
             return;
         }
 
@@ -240,7 +248,7 @@ const DeviceStatus = () => {
 
     return (
         <div className="bg-white shadow-lg border lg:m-10 m-4 h-[90%] flex flex-col bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
-            <div className="flex justify-end flex-grow-0 p-5 sticky top-0 left-0 lg:mr-4">
+                        <div className="flex justify-end flex-grow-0 p-5 sticky top-0 left-0 lg:mr-4">
                 <Input
                     type="text"
                     className="w-56 py-0 px-5 rounded-full border"
@@ -343,4 +351,3 @@ const DeviceStatus = () => {
 }
 
 export default DeviceStatus;
-
