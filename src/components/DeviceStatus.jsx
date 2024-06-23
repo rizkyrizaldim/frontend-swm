@@ -13,6 +13,8 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import Sidebar from './Sidebar';
+import Navbar from './Navbar';
 
 const DeviceStatus = () => {
     const [data, setData] = useState([]);
@@ -24,7 +26,7 @@ const DeviceStatus = () => {
     const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 20;
     const navigate = useNavigate();
-    
+
     const isTokenExpired = (token) => {
         const payloadBase64 = token.split('.')[1];
         const payload = JSON.parse(atob(payloadBase64));
@@ -61,23 +63,23 @@ const DeviceStatus = () => {
     useEffect(() => {
         fetchData();
     }, []);
-    
+
     const handleDetailClick = (item) => {
-        navigate(`/detail?serialNumber=${item.serial_number}`, { state: { detailData: item } });
+        navigate(`/detail?serial_number=${item.serial_number}`, { state: { detailData: item } });
     };
-    
+
     const formatTimestamp = (timestamp) => {
         const date = new Date(timestamp);
         const now = new Date();
         const timeDifference = (now - date) / 1000;
-        
+
         const secondsInMinute = 60;
         const secondsInHour = secondsInMinute * 60;
         const secondsInDay = secondsInHour * 24;
         const secondsInWeek = secondsInDay * 7;
         const secondsInMonth = secondsInDay * 30; // Average 30 days per month
         const secondsInYear = secondsInDay * 365; // Average 365 days per year
-        
+
         if (timeDifference < secondsInMinute) {
             return 'Just now';
         } else if (timeDifference < secondsInHour) {
@@ -100,7 +102,7 @@ const DeviceStatus = () => {
             return `${years} year${years > 1 ? 's' : ''} ago`;
         }
     };
-    
+
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1); // Reset to the first page on search change
@@ -111,12 +113,12 @@ const DeviceStatus = () => {
         (filterBatteryStatus === '' || item.batteryStatus.toLowerCase().includes(filterBatteryStatus)) &&
         (filterConnectionStatus === '' || item.statusConnection.toLowerCase() === filterConnectionStatus.toLowerCase()) && // Perubahan di sini
         (item.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         item.signalStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         item.batteryStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         item.statusConnection.toLowerCase().includes(searchTerm.toLowerCase()))
+            item.signalStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.batteryStatus.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.statusConnection.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-    
-    
+
+
 
     const paginatedData = filteredData.slice(
         (currentPage - 1) * itemsPerPage,
@@ -153,11 +155,11 @@ const DeviceStatus = () => {
 
     const getConnectionStatusColor = (status) => {
         switch (status.toLowerCase()) {
-            case 'connect' :
+            case 'connect':
                 return 'text-green-500';
-            case 'disconnect' :
+            case 'disconnect':
                 return 'text-red-500';
-            default :
+            default:
                 return 'text-black';
         }
     }
@@ -247,105 +249,113 @@ const DeviceStatus = () => {
     };
 
     return (
-        <div className="bg-white shadow-lg border lg:m-10 m-4 h-[90%] flex flex-col bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
-                        <div className="flex justify-end flex-grow-0 p-5 sticky top-0 left-0 lg:mr-4">
-                <Input
-                    type="text"
-                    className="w-56 py-0 px-5 rounded-full border"
-                    placeholder="Search..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                />
-            </div>
-            <div className="lg:p-2 lg:flex lg:justify-end text-sm grid grid-cols-3 gap-2 lg:mr-6">
-                <select
-                    value={filterSignalStatus}
-                    onChange={(e) => setFilterSignalStatus(e.target.value)}
-                    className="px-3 py-2 rounded-md border"
-                >
-                    <option value="">Signal Status</option>
-                    <option value="bagus">Bagus</option>
-                    <option value="sedang">Sedang</option>
-                    <option value="buruk">Buruk</option>
-                </select>
+        <div className="w-full h-screen bg-gray-200 flex lg:grid lg:grid-cols-[20%,80%] justify-center">
+            <Sidebar />
 
-                <select
-                    value={filterBatteryStatus}
-                    onChange={(e) => setFilterBatteryStatus(e.target.value)}
-                    className="px-3 py-2 rounded-md border"
-                >
-                    <option value="">Battery Status</option>
-                    <option value="stabil">Stabil</option>
-                    <option value="drop">Drop</option>
-                </select>
-                <select
-                    value={filterConnectionStatus}
-                    onChange={(e) => setFilterConnectionStatus(e.target.value)}
-                    className="px-3 py-2 rounded-md border"
-                >
-                    <option value="">Connection Status</option>
-                    <option value="Connect">Connect</option>
-                    <option value="Disconnect">Disconnect</option>
-                </select>
+            <div className="overflow-y-scroll lg:overflow-hidden h-screen flex flex-col">
+                <Navbar />
+                <div className="bg-white shadow-lg border lg:m-10 m-4 h-[90%] flex flex-col bordershadow-2xl overflow-x-scroll lg:overflow-hidden">
+                    <div className="flex justify-end flex-grow-0 p-5 sticky top-0 left-0 lg:mr-4">
+                        <Input
+                            type="text"
+                            className="w-56 py-0 px-5 rounded-full border"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                        />
+                    </div>
+                    <div className="lg:p-2 lg:flex lg:justify-end text-sm grid grid-cols-3 gap-2 lg:mr-6">
+                        <select
+                            value={filterSignalStatus}
+                            onChange={(e) => setFilterSignalStatus(e.target.value)}
+                            className="px-3 py-2 rounded-md border"
+                        >
+                            <option value="">Signal Status</option>
+                            <option value="bagus">Bagus</option>
+                            <option value="sedang">Sedang</option>
+                            <option value="buruk">Buruk</option>
+                        </select>
+
+                        <select
+                            value={filterBatteryStatus}
+                            onChange={(e) => setFilterBatteryStatus(e.target.value)}
+                            className="px-3 py-2 rounded-md border"
+                        >
+                            <option value="">Battery Status</option>
+                            <option value="stabil">Stabil</option>
+                            <option value="drop">Drop</option>
+                        </select>
+                        <select
+                            value={filterConnectionStatus}
+                            onChange={(e) => setFilterConnectionStatus(e.target.value)}
+                            className="px-3 py-2 rounded-md border"
+                        >
+                            <option value="">Connection Status</option>
+                            <option value="Connect">Connect</option>
+                            <option value="Disconnect">Disconnect</option>
+                        </select>
+
+                    </div>
+                    <Table className='w-[900px] overflow-x-scroll rounded-[30px] lg:w-[97%] mx-auto '>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="p-2 text-center font-bold text-black">No</TableHead>
+                                <TableHead className="p-2 text-center font-bold text-black">SN Device</TableHead>
+                                <TableHead className="p-2 text-center font-bold text-black">Signal Status</TableHead>
+                                <TableHead className="p-2 text-center font-bold text-black">Rate Data Flow</TableHead>
+                                <TableHead className="p-2 text-center font-bold text-black">Status Baterai</TableHead>
+                                <TableHead className="p-2 text-center font-bold text-black">Status Last Data</TableHead>
+                                <TableHead className="p-2 text-center font-bold text-black">Status Koneksi</TableHead>
+                                <TableHead className="p-2 text-center font-bold text-black">Detail</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {paginatedData.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableHead className="text-xs text-center">{(currentPage - 1) * itemsPerPage + index + 1}</TableHead>
+                                    <TableHead className="text-xs text-center">{item.serial_number}</TableHead>
+                                    <TableHead className={`text-xs text-center uppercase ${getSignalStatusColor(item.signalStatus)}`}>{item.signalStatus}</TableHead>
+                                    <TableHead className="text-xs text-center">{item.rateDataFlow} m3 / hari</TableHead>
+                                    <TableHead className={`text-xs text-center ${getBatteryStatusColor(item.batteryStatus)}`}>{item.batteryStatus}</TableHead>
+                                    <TableHead className="text-xs text-center">{formatTimestamp(item.timestamp)}</TableHead>
+                                    <TableHead className={`text-xs text-center ${getConnectionStatusColor(item.statusConnection)}`}>{item.statusConnection}</TableHead>
+                                    <TableHead className="text-xs text-center">
+                                        <Button onClick={() => handleDetailClick(item)} className="bg-green-500 hover:bg-green-700 w-15 h-6">Detail</Button>
+                                    </TableHead>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    <Pagination className="p-2">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (currentPage > 1) {
+                                            handlePageChange(currentPage - 1);
+                                        }
+                                    }}
+                                />
+                            </PaginationItem>
+                            {generatePaginationItems()}
+                            <PaginationItem>
+                                <PaginationNext
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (currentPage < totalPages) {
+                                            handlePageChange(currentPage + 1);
+                                        }
+                                    }}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                </div>
 
             </div>
-            <Table className='w-[900px] overflow-x-scroll rounded-[30px] lg:w-[97%] mx-auto '>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="p-2 text-center font-bold text-black">No</TableHead>
-                        <TableHead className="p-2 text-center font-bold text-black">SN Device</TableHead>
-                        <TableHead className="p-2 text-center font-bold text-black">Signal Status</TableHead>
-                        <TableHead className="p-2 text-center font-bold text-black">Rate Data Flow</TableHead>
-                        <TableHead className="p-2 text-center font-bold text-black">Status Baterai</TableHead>
-                        <TableHead className="p-2 text-center font-bold text-black">Status Last Data</TableHead>
-                        <TableHead className="p-2 text-center font-bold text-black">Status Koneksi</TableHead>
-                        <TableHead className="p-2 text-center font-bold text-black">Detail</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {paginatedData.map((item, index) => (
-                        <TableRow key={index}>
-                            <TableHead className="text-xs text-center">{(currentPage - 1) * itemsPerPage + index + 1}</TableHead>
-                            <TableHead className="text-xs text-center">{item.serial_number}</TableHead>
-                            <TableHead className={`text-xs text-center uppercase ${getSignalStatusColor(item.signalStatus)}`}>{item.signalStatus}</TableHead>
-                            <TableHead className="text-xs text-center">{item.rateDataFlow} m3 / hari</TableHead>
-                            <TableHead className={`text-xs text-center ${getBatteryStatusColor(item.batteryStatus)}`}>{item.batteryStatus}</TableHead>
-                            <TableHead className="text-xs text-center">{formatTimestamp(item.timestamp)}</TableHead>
-                            <TableHead className={`text-xs text-center ${getConnectionStatusColor(item.statusConnection)}`}>{item.statusConnection}</TableHead>
-                            <TableHead className="text-xs text-center">
-                                <Button onClick={() => handleDetailClick(item)} className="bg-green-500 hover:bg-green-700 w-15 h-6">Detail</Button>
-                            </TableHead>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <Pagination className="p-2">
-                <PaginationContent>
-                    <PaginationItem>
-                        <PaginationPrevious
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (currentPage > 1) {
-                                    handlePageChange(currentPage - 1);
-                                }
-                            }}
-                        />
-                    </PaginationItem>
-                    {generatePaginationItems()}
-                    <PaginationItem>
-                        <PaginationNext
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (currentPage < totalPages) {
-                                    handlePageChange(currentPage + 1);
-                                }
-                            }}
-                        />
-                    </PaginationItem>
-                </PaginationContent>
-            </Pagination>
         </div>
     );
 }
