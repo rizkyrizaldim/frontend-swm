@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from './ui/input';
 import axios from 'axios';
+import { VscEye, VscEyeClosed } from "react-icons/vsc";
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -30,7 +32,7 @@ const LoginPage = () => {
       if (response.status === 200) {
         const token = response.data.token;
         localStorage.setItem('authToken', token);
-        localStorage.setItem('userEmail', email); // Store the user's email
+        localStorage.setItem('userEmail', email);
         navigate('/');
       } else {
         throw new Error('Login failed');
@@ -42,6 +44,12 @@ const LoginPage = () => {
 
   const handleRegister = () => {
     navigate('/register');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleLogin();
+    }
   };
 
   return (
@@ -57,14 +65,25 @@ const LoginPage = () => {
             className="mb-4 w-full"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
-          <Input
-            type="password"
-            placeholder="Password"
-            className="mb-4 w-full"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative w-full mb-4">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              className="w-full"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 px-3 flex items-center"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <VscEyeClosed size={24} /> : <VscEye size={24} />}
+            </button>
+          </div>
           <button
             onClick={handleLogin}
             className="bg-blue-500 text-white py-2 px-4 rounded w-full hover:bg-blue-600 transition-colors duration-200"
