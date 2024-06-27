@@ -28,8 +28,11 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="bg-white max-h-[10%] flex justify-between lg:justify-end items-center p-5 shadow-lg sticky top-0 z-10">
-        <FaBars onClick={() => setMenuVisible(!isMenuVisible)} size={24} className="lg:hidden" />
+      <div className="bg-white max-h-[10%] flex justify-between lg:justify-between items-center p-5 shadow-lg sticky top-0 z-10">
+        <div className="flex items-center">
+          <FaBars onClick={() => setMenuVisible(!isMenuVisible)} size={24} className="lg:hidden mr-3" />
+          <h1 className="text-[17px] font-bold text-black">SMART WATER METER</h1>
+        </div>
         <div className="flex gap-4 items-center">
           <p className="text-md font-bold text-black">{userEmail || 'Admin'}</p>
           <div className="relative">
@@ -48,7 +51,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-      {isMenuVisible && (
+      {/* {isMenuVisible && (
         <div className="w-full h-screen bg-[#75D7BF] rounded-[30px] flex flex-col justify-start items-center text-xl font-bold p-4 lg:hidden">
           <h1 className="text-[17px] font-bold text-white mt-3 mb-5">SMART WATER METER</h1>
           <div className='bg-[#FFFBFB33] p-8 rounded-[50px] h-full w-full flex flex-col gap-4 text-indigo-50'>
@@ -58,7 +61,7 @@ const Navbar = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };

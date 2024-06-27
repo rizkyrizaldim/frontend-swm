@@ -19,8 +19,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="hidden bg-indigo-950 lg:flex lg:flex-col lg:justify-evenly lg:content-center lg:gap-2 lg:items-center lg:p-4 lg:sticky lg:top-0 lg:h-screen lg:overflow-hidden">
-      <h1 className="text-[17px] font-bold text-white mt-3 mb-5">SMART WATER METER</h1>
+    <div className="hidden bg-indigo-950 lg:flex lg:flex-col lg:justify-evenly lg:content-center lg:gap-4 lg:items-center lg:p-4 lg:pt-2 lg:sticky lg:top-0 lg:h-screen lg:overflow-hidden">
+      {/* <h1 className="text-[17px] font-bold text-white mt-3 mb-5">SMART WATER METER</h1> */}
+      <img className="h-[7%]" src="/Antares IoT.png" alt="" />
       <div className="p-8 rounded-[50px] h-full w-full flex flex-col gap-4 text-indigo-50">
         <button
           onClick={() => handleClick(1)}
